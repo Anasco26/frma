@@ -1,0 +1,71 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Student {
+  id         Int       @id @default(autoincrement())
+  firstName  String
+  lastName   String
+  studentId  String    @unique
+  class      String
+  fees       Fee[]
+  payments   Payment[]
+  category   Category? @relation(fields: [categoryId], references: [id])
+  categoryId Int?
+}
+
+model Term {
+  id        Int      @id @default(autoincrement())
+  name      String
+  startDate DateTime
+  endDate   DateTime
+  fees      Fee[]
+}
+
+model Fee {
+  id         Int       @id @default(autoincrement())
+  amount     Float
+  dueDate    DateTime
+  studentId  Int
+  student    Student   @relation(fields: [studentId], references: [id])
+  termId     Int
+  term       Term      @relation(fields: [termId], references: [id])
+  category   Category? @relation(fields: [categoryId], references: [id])
+  categoryId Int?
+}
+
+model Payment {
+  id        Int      @id @default(autoincrement())
+  amount    Float
+  date      DateTime
+  studentId Int
+  student   Student  @relation(fields: [studentId], references: [id])
+}
+
+model Admin {
+  id        Int      @id @default(autoincrement())
+  firstName String
+  lastName  String
+  email     String   @unique
+  role      String
+  password  String
+  createAt  DateTime @default(now())
+  updateAt  DateTime @updatedAt
+}
+
+model Category {
+  id       Int       @id @default(autoincrement())
+  name     String    @unique
+  students Student[]
+  fees     Fee[]
+  createAt DateTime  @default(now())
+  updateAt DateTime  @updatedAt
+}
